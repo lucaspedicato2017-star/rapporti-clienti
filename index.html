@@ -557,24 +557,73 @@ function render(){
 /* ===== MODIFICA ===== */
 function openEdit(i){
   var c = clients[i];
+
+  // per non rompere l'HTML se ci sono apici/virgolette nei campi
+  function esc(v){
+    return String(v||"").replace(/"/g,"&quot;");
+  }
+
+  // ricava selezione problema + testo ALTRO
+  var probSel = "";
+  var probAlt = "";
+  if((c.problema||"").toUpperCase().indexOf("ALTRO:") === 0){
+    probSel = "ALTRO";
+    probAlt = (c.problema||"").substring(6).trim(); // dopo "ALTRO:"
+  } else {
+    probSel = c.problema || "";
+  }
+
   showModal(function(modal){
     modal.innerHTML =
       '<h3>Modifica cliente</h3>'+
 
-      '<div class="row"><div class="small">Nome</div><input id="e_nome" value="'+(c.nome||"")+'"></div>'+
-      '<div class="row"><div class="small">Via</div><input id="e_via" value="'+(c.via||"")+'"></div>'+
-      '<div class="row"><div class="small">Comune</div><input id="e_citta" value="'+(c.citta||"")+'"></div>'+
-      '<div class="row"><div class="small">Telefono</div><input id="e_telefono" type="tel" inputmode="tel" autocomplete="tel" pattern="[0-9+ ]*" value="'+(c.telefono||"")+'"></div>'+
-      '<div class="row"><div class="small">Modello caldaia</div><input id="e_modello" value="'+(c.modello||"")+'"></div>'+
+      '<div class="row"><div class="small">Nome</div><input id="e_nome" value="'+esc(c.nome)+'"></div>'+
+      '<div class="row"><div class="small">Via</div><input id="e_via" value="'+esc(c.via)+'"></div>'+
+      '<div class="row"><div class="small">Comune</div><input id="e_citta" value="'+esc(c.citta)+'"></div>'+
+
+      '<div class="row"><div class="small">Telefono</div>'+
+        '<input id="e_telefono" type="tel" inputmode="numeric" autocomplete="tel" pattern="[0-9+ ]*" value="'+esc(c.telefono)+'">'+
+      '</div>'+
+
+      '<div class="row"><div class="small">Modello caldaia</div><input id="e_modello" value="'+esc(c.modello)+'"></div>'+
+
+      // ✅ PROBLEMA (tendina uguale a fase 2)
+      '<div class="row"><div class="small">Problema</div>'+
+        '<select id="e_problema">'+problema.innerHTML+'</select>'+
+      '</div>'+
+
+      // ✅ ALTRO (nascosto finché non selezioni ALTRO)
+      '<div class="row" id="e_prob_alt_row" style="display:none">'+
+        '<div class="small">Scrivi il problema</div>'+
+        '<input id="e_problemaAltro" value="'+esc(probAlt)+'">'+
+      '</div>'+
+
       '<div class="row"><div class="small">Tipo gestione</div><select id="e_stato">'+stato.innerHTML+'</select></div>'+
-      '<div class="row"><div class="small">Note</div><input id="e_note" value="'+(c.note||"")+'"></div>'+
+      '<div class="row"><div class="small">Note</div><input id="e_note" value="'+esc(c.note)+'"></div>'+
 
       '<div class="btn-row">'+
         '<button class="btn-secondary" id="annullaEdit">Annulla</button>'+
         '<button class="btn-primary" id="salvaEdit">Salva</button>'+
       '</div>';
 
+    // set valori iniziali
     modal.querySelector("#e_stato").value = c.stato || "";
+    modal.querySelector("#e_problema").value = probSel;
+
+    function refreshAlt(){
+      var v = modal.querySelector("#e_problema").value;
+      var row = modal.querySelector("#e_prob_alt_row");
+      if(v === "ALTRO"){
+        row.style.display = "block";
+        try{ modal.querySelector("#e_problemaAltro").focus(); }catch(e){}
+      }else{
+        row.style.display = "none";
+        modal.querySelector("#e_problemaAltro").value = "";
+      }
+    }
+    refreshAlt();
+    modal.querySelector("#e_problema").onchange = refreshAlt;
+
     modal.querySelector("#annullaEdit").onclick = closeModal;
 
     modal.querySelector("#salvaEdit").onclick = function(){
@@ -583,14 +632,26 @@ function openEdit(i){
       c.citta = modal.querySelector("#e_citta").value;
       c.telefono = modal.querySelector("#e_telefono").value;
       c.modello = modal.querySelector("#e_modello").value;
+
+      // ✅ salva problema come fase 2
+      var p = modal.querySelector("#e_problema").value;
+      if(p === "ALTRO"){
+        var txt = safeTrim(modal.querySelector("#e_problemaAltro").value);
+        c.problema = txt ? ("ALTRO: " + txt) : "ALTRO";
+      } else {
+        c.problema = p;
+      }
+
       c.stato = modal.querySelector("#e_stato").value;
       c.note = modal.querySelector("#e_note").value;
+
       closeModal();
       render();
       salvaDati();
     };
   });
 }
+
 
 /* ===== ELIMINA ===== */
 function openDelete(i){
