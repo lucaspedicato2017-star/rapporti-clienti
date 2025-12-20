@@ -133,7 +133,7 @@ button{border:none;border-radius:999px;padding:8px 14px;font-weight:600;cursor:p
       <input id="nome" placeholder="Nome">
       <input id="via" placeholder="Via">
       <input id="citta" placeholder="Comune">
-      <input id="telefono" placeholder="Telefono">
+      <input id="telefono" placeholder="Telefono" type="tel" inputmode="tel" autocomplete="tel" pattern="[0-9+ ]*">
       <input id="modello" placeholder="Modello caldaia">
     </div>
 
@@ -564,7 +564,7 @@ function openEdit(i){
       '<div class="row"><div class="small">Nome</div><input id="e_nome" value="'+(c.nome||"")+'"></div>'+
       '<div class="row"><div class="small">Via</div><input id="e_via" value="'+(c.via||"")+'"></div>'+
       '<div class="row"><div class="small">Comune</div><input id="e_citta" value="'+(c.citta||"")+'"></div>'+
-      '<div class="row"><div class="small">Telefono</div><input id="e_telefono" value="'+(c.telefono||"")+'"></div>'+
+      '<div class="row"><div class="small">Telefono</div><input id="e_telefono" type="tel" inputmode="tel" autocomplete="tel" pattern="[0-9+ ]*" value="'+(c.telefono||"")+'"></div>'+
       '<div class="row"><div class="small">Modello caldaia</div><input id="e_modello" value="'+(c.modello||"")+'"></div>'+
       '<div class="row"><div class="small">Tipo gestione</div><select id="e_stato">'+stato.innerHTML+'</select></div>'+
       '<div class="row"><div class="small">Note</div><input id="e_note" value="'+(c.note||"")+'"></div>'+
