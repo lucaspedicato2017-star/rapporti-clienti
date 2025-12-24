@@ -487,12 +487,12 @@ function buildCard(c, i){
     d.appendChild(a);
   }
 
- if(c.telefono){
-  var clean = String(c.telefono).replace(/\s+/g,"");
-  var t=document.createElement("a");
-  t.className="gc-big gc-link";
-  t.textContent="📞 "+clean;
-  t.href = "tel:*31%23" + clean;   // ✅ *31# davanti
+if(c.telefono){
+  var clean = String(c.telefono).replace(/[^0-9+]/g,""); // lascia solo numeri e +
+  var t = document.createElement("a");
+  t.className = "gc-big gc-link";
+  t.textContent = "📞 " + clean;
+  t.href = "tel:%2331%23" + clean;   // ✅ #31# davanti
   d.appendChild(t);
 }
 
